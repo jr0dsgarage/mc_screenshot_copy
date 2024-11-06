@@ -20,3 +20,8 @@ I found myself doing this frequently after having multiple instances created, an
 ## Usage notes
 - The MultiMC folder is the folder that holds MultiMC.exe (and the instances subdirectory)
 - The output folder will be created for you if it doesn't exist
+
+## Dependencies
+This project uses the following crate dependencies:
+
+- [`colored`](https://crates.io/crates/colored) for colored terminal output
