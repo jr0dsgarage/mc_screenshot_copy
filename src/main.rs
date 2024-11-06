@@ -15,7 +15,8 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let (multimc_folder, output_folder) = if args.len() != 3 {
         let exe_name = Path::new(&args[0]).file_name().unwrap().to_str().unwrap();
-        println!("Typical Usage: {} <MultiMC folder> <output folder>", exe_name);
+        println!("Typical command prompt Usage: {} <MultiMC folder> <output folder>", exe_name);
+        println!("{}","No arguments provided, prompting for folders...".bright_red());
         let multimc_folder = folder_prompt("Please enter the MultiMC folder: ");
         let output_folder = folder_prompt("Please enter the output folder: ");
         (multimc_folder, output_folder)
@@ -24,19 +25,19 @@ fn main() {
     };
 
     if !Path::new(&multimc_folder).exists() {
-        println!("The MultiMC folder provided does not exist");
+        println!("{}","The MultiMC folder provided does not exist".bright_red());
         std::process::exit(1);
     }
 
     if let Err(e) = create_output_folder(&output_folder) {
-        println!("Failed to create output folder: {}", e);
+        println!("Failed to create output folder: {}", e.to_string().bright_red());
         std::process::exit(1);
     }
 
     let instance_folders = match get_instance_folders(&multimc_folder) {
         Ok(folders) => folders,
         Err(_e) => {
-            println!("The MultiMC folder provided is not valid");
+            println!("{}","The MultiMC folder provided is not valid, please use the folder that contains MultiMC.exe".bright_red());
             std::process::exit(1);
         }
     };
@@ -50,7 +51,7 @@ fn main() {
 }
 
 fn folder_prompt(prompt: &str) -> String {
-    print!("{}", prompt.magenta());
+    print!("{}", prompt.bright_green());
     io::stdout().flush().expect("Failed to flush stdout");
     let mut input = String::new();
     io::stdin().read_line(&mut input).expect("Failed to read line");
