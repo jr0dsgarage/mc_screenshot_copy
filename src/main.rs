@@ -3,7 +3,8 @@ use std::{env, fs, path::{Path, PathBuf}};
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() != 3 {
-        println!("Usage: {} <MultiMC folder> <output folder>", args[0]);
+        let exe_name = Path::new(&args[0]).file_name().unwrap().to_str().unwrap();
+        println!("Usage: {} <MultiMC folder> <output folder>", exe_name);
         std::process::exit(1);
     }
 
