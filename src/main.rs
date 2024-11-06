@@ -24,7 +24,7 @@ fn main() {
 
     let instance_folders = match get_instance_folders(&multimc_folder) {
         Ok(folders) => folders,
-        Err(e) => {
+        Err(_e) => {
             println!("The MultiMC folder provided is not valid");
             std::process::exit(1);
         }
@@ -76,7 +76,7 @@ fn copy_screenshots(instance_folders: Vec<PathBuf>, output_folder: &str) -> usiz
                     let dest_path = Path::new(output_folder).join(file_name);
                     if !dest_path.exists() {
                         fs::copy(&path, &dest_path).unwrap();
-                        println!("Copied: {:?}", path);
+                        println!("Copied: {}", path.display());
                         total_screenshots += 1;
                     }
                 }
