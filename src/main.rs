@@ -1,12 +1,23 @@
-use std::{io::{self, Write}, env, fs, path::{Path, PathBuf}};
+use std::{io::{self, Write, Read}, env, fs, path::{Path, PathBuf}};
+use colored::*;
 
 fn main() {
+    if cfg!(target_os = "windows") {
+        control::set_virtual_terminal(true).unwrap();
+    }
+
+    // make a string with "MultiMC Screenshot Copier" in cyan and the version in green
+    let title = format!("{} {}", "MultiMC Screenshot Copier".cyan(), env!("CARGO_PKG_VERSION").green());
+    println!("{}", title);
+    // print a line of equal signs as long as the length of title in cyan
+    println!("{}", "=".repeat(title.len()).cyan());
+
     let args: Vec<String> = env::args().collect();
     let (multimc_folder, output_folder) = if args.len() != 3 {
         let exe_name = Path::new(&args[0]).file_name().unwrap().to_str().unwrap();
         println!("Typical Usage: {} <MultiMC folder> <output folder>", exe_name);
-        let multimc_folder = prompt_user("Please enter the MultiMC folder: ");
-        let output_folder = prompt_user("Please enter the output folder: ");
+        let multimc_folder = folder_prompt("Please enter the MultiMC folder: ");
+        let output_folder = folder_prompt("Please enter the output folder: ");
         (multimc_folder, output_folder)
     } else {
         (args[1].clone(), args[2].clone())
@@ -32,11 +43,14 @@ fn main() {
 
     let total_screenshots = copy_screenshots(instance_folders, &output_folder);
 
-    println!("Total screenshots copied: {}", total_screenshots);
+    println!("{} {}", "Total screenshots copied:".magenta(), total_screenshots.to_string().bright_green());
+
+    println!("{}","\nPress Return to exit...".bright_green());
+    let _ = std::io::stdin().read(&mut [0u8]).unwrap();
 }
 
-fn prompt_user(prompt: &str) -> String {
-    print!("{}", prompt);
+fn folder_prompt(prompt: &str) -> String {
+    print!("{}", prompt.magenta());
     io::stdout().flush().expect("Failed to flush stdout");
     let mut input = String::new();
     io::stdin().read_line(&mut input).expect("Failed to read line");
@@ -76,7 +90,7 @@ fn copy_screenshots(instance_folders: Vec<PathBuf>, output_folder: &str) -> usiz
                     let dest_path = Path::new(output_folder).join(file_name);
                     if !dest_path.exists() {
                         fs::copy(&path, &dest_path).unwrap();
-                        println!("Copied: {}", path.display());
+                        println!("{} {}", "Copied:".magenta(), path.display().to_string().bright_cyan());
                         total_screenshots += 1;
                     }
                 }
