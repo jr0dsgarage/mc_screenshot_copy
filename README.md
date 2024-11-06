@@ -1,6 +1,6 @@
 # Minecraft MultiMC Screenshot Copier
 
-This utility application copies all the screenshots from the instances folders withing a MultiMC directory to an output folder
+This utility application copies all the screenshots from the instances folders within a MultiMC directory to an output folder
 
 ![image](https://github.com/user-attachments/assets/a4a011de-4199-4cb5-89eb-ec0d6a8f9310)
 
