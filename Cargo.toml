@@ -1,8 +1,13 @@
 [package]
-authors = ["jr0dsgarage"]
+authors = ["j__r0d"]
 name = "mc_screenshot_copy"
 version = "1.0.1"
 edition = "2021"
+description = "A simple tool to copy screenshots from across all MultiMC instances to a specified folder."
+repository = "https://github.com/jr0dsgarage/mc_screenshot_copy.git"
+license = "GNU GPLv3"
+license-file = "LICENSE"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
