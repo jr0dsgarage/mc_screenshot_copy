@@ -6,7 +6,13 @@ fn main() {
         control::set_virtual_terminal(true).unwrap();
     }
 
-    let title = format!("{} {}", "MultiMC Screenshot Copier".cyan(), env!("CARGO_PKG_VERSION").green());
+    let title = format!(
+        "{} {} {} {}", 
+        "MultiMC Screenshot Copier".cyan(),
+        env!("CARGO_PKG_VERSION").green(),
+        "by:".cyan(),
+        env!("CARGO_PKG_AUTHORS").green()
+    );
     println!("{}", title);
     println!("{}", "=".repeat(title.len()).cyan());
 
