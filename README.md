@@ -1,6 +1,6 @@
 # Minecraft MultiMC Screenshot Copier
 
-This utility application copies all the screenshots from the instances folders withing a MultiMC directory to an output folder
+This utility application copies all the screenshots from the instances folders within a MultiMC directory to an output folder.
 
 ![image](https://github.com/user-attachments/assets/a4a011de-4199-4cb5-89eb-ec0d6a8f9310)
 
@@ -20,3 +20,8 @@ I found myself doing this frequently after having multiple instances created, an
 ## Usage notes
 - The MultiMC folder is the folder that holds MultiMC.exe (and the instances subdirectory)
 - The output folder will be created for you if it doesn't exist
+
+## Dependencies
+This project uses the following crate dependencies:
+
+- [`colored`](https://crates.io/crates/colored) for colored terminal output
