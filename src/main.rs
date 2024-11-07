@@ -6,10 +6,8 @@ fn main() {
         control::set_virtual_terminal(true).unwrap();
     }
 
-    // make a string with "MultiMC Screenshot Copier" in cyan and the version in green
     let title = format!("{} {}", "MultiMC Screenshot Copier".cyan(), env!("CARGO_PKG_VERSION").green());
     println!("{}", title);
-    // print a line of equal signs as long as the length of title in cyan
     println!("{}", "=".repeat(title.len()).cyan());
 
     let args: Vec<String> = env::args().collect();
