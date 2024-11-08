@@ -23,24 +23,36 @@ impl Config {
     }
 
     /// Validates the MultiMC folder path.
-    fn validate(&self) {
-        if !Path::new(&self.multimc_folder).exists() {
-            println!("{}","The MultiMC folder provided does not exist".bright_red());
-            std::process::exit(1);
+    fn validate_multimc_folder(&self) -> Result<(), String> {
+        if self.multimc_folder.is_empty() {
+            Err("No input given for the MultiMC folder".to_string())
+        } else if !Path::new(&self.multimc_folder).exists() {
+            Err("The MultiMC folder provided does not exist or does not include MultiMC.exe".to_string())
+        } else {
+            Ok(())
         }
     }
 
-    /// Attempts to create the output folder.
-    fn create_output_folder(&self) {
-        if let Err(e) = fs::create_dir_all(&self.output_folder) {
-            println!("Failed to create output folder: {}", e.to_string().bright_red());
+    /// Validates the output folder path and creates the folder if it doesn't exist.
+    fn validate_output_folder(&self) -> Result<(), String> {
+        if self.output_folder.is_empty() {
+            Err("No input given for the output folder".to_string())
+        } else if !Path::new(&self.output_folder).exists() {
+            if let Err(e) = fs::create_dir_all(&self.output_folder) {
+                Err(format!("Failed to create output folder: {}", e.to_string()))
+            } else {
+                Ok(())
+            }
+        } else {
+            Ok(())
         }
     }
 
     /// Sets up the configuration by validating the MultiMC folder and creating the output folder if necessary.
-    fn setup(&self) {
-        self.validate();
-        self.create_output_folder();
+    fn setup(&self) -> Result<(), String> {
+        self.validate_multimc_folder()?;
+        self.validate_output_folder()?;
+        Ok(())
     }
     
 
@@ -52,13 +64,17 @@ fn main() {
     print_title();
     
     let config: Config = Config::new(&args);
-    config.setup();
+    if let Err(e) = config.setup() {
+        println!("{}", e.bright_red());
+        await_exit_confirmation();
+        return;
+    }
 
     let instance_folders = match get_instance_folders(&config.multimc_folder) {
         Ok(folders) => folders,
         Err(_e) => {
             println!("{}","The MultiMC folder provided is not valid, please use the folder that contains MultiMC.exe".bright_red());
-            std::process::exit(1);
+            Vec::new()
         }
     };
 
@@ -66,8 +82,7 @@ fn main() {
 
     println!("{} {}", "Total screenshots copied:".magenta(), total_screenshots.to_string().bright_green());
 
-    println!("{}","\nPress Return to exit...".bright_green());
-    let _ = std::io::stdin().read(&mut [0u8]).unwrap();
+    await_exit_confirmation();
 }
 
 /// Sets up the terminal to enable colors
@@ -136,4 +151,10 @@ fn copy_screenshots(instance_folders: Vec<PathBuf>, output_folder: &str) -> usiz
     }
 
     total_screenshots
+}
+
+/// Prompts the user to press Enter to exit the application.
+fn await_exit_confirmation() {
+    println!("{}","\nPress Return to exit...".bright_green());
+    let _ = std::io::stdin().read(&mut [0u8]).unwrap();
 }
