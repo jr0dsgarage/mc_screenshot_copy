@@ -11,8 +11,8 @@ impl Config {
     /// Creates a new Config instance from command-line arguments or prompts the user for input.
     fn new(args: &[String]) -> Config {
         if args.len() != 3 {
-            let exe_name = Path::new(&args[0]).file_name().unwrap().to_str().unwrap();
-            println!("Typical command prompt Usage: {} <MultiMC folder> <output folder>", exe_name);
+            println!("Typical command prompt Usage: {} <MultiMC folder> <output folder>",
+                Path::new(&args[0]).file_name().unwrap().to_str().unwrap());
             println!("{}","No arguments provided, prompting for folders...".bright_red());
             let multimc_folder = folder_prompt("Please enter the MultiMC folder: ");
             let output_folder = folder_prompt("Please enter the output folder: ");
@@ -48,9 +48,10 @@ impl Config {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let config: Config = Config::new(&args);
     setup_terminal();
     print_title();
+    
+    let config: Config = Config::new(&args);
     config.setup();
 
     let instance_folders = match get_instance_folders(&config.multimc_folder) {
