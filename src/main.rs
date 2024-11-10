@@ -77,7 +77,7 @@ fn get_instance_folders(multimc_folder: &str) -> Vec<PathBuf> {
 /// Copies the screenshots from the /.minecraft/screenshots folder within the MultiMC instances to the output folder.
 /// Returns the total number of screenshots copied.
 fn copy_screenshots(instance_folders: Vec<PathBuf>, output_folder: &str) -> usize {
-    let mut total_screenshots: usize = 0;
+    let mut total_screenshots_copied: usize = 0;
 
     for instance_folder in instance_folders {
         let screenshots_folder = instance_folder.join(".minecraft").join("screenshots");
@@ -91,14 +91,14 @@ fn copy_screenshots(instance_folders: Vec<PathBuf>, output_folder: &str) -> usiz
                     if !dest_path.exists() {
                         fs::copy(&path, &dest_path).unwrap();
                         println!("{} {}", "Copied:".magenta(), path.display().to_string().bright_cyan());
-                        total_screenshots += 1;
+                        total_screenshots_copied += 1;
                     }
                 }
             }
         }
     }
     
-    total_screenshots
+    total_screenshots_copied
 }
 
 /// Prompts the user to press Enter to exit the application.

@@ -15,7 +15,8 @@ impl Config {
         // If the user didn't provide enough arguments, do nothing and fill the variables with empty strings.
         // The config.validate() function call will re-prompt the user for input.
         if args.len() != 3 {
-            println!("Typical command prompt Usage: {} {}",
+            println!("Typical command prompt Usage: {}{} {}",
+                ".\\".bright_green(),
                 Path::new(&args[0]).file_name().unwrap().to_str().unwrap().bright_green(),
                 "<MultiMC folder path> <output folder path>".bright_green());
             println!("{}","Not enough arguments provided, prompting for folder paths...".bright_red());
