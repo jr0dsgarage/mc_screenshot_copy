@@ -13,9 +13,12 @@ fn main() {
 
     let instance_folders: Vec<PathBuf> = get_instance_folders(&config.multimc_folder);
 
-    let total_screenshots: usize = copy_screenshots(instance_folders, &config.output_folder);
+    let (total_screenshots_copied, total_screenshots_not_copied) = copy_screenshots(instance_folders, &config.output_folder);
 
-    println!("{} {}", "Total screenshots copied:".magenta(), total_screenshots.to_string().bright_green());
+    if total_screenshots_not_copied > 0 {
+        println!("{} {}", "Total screenshots not copied because they already exist in output folder:".magenta(), total_screenshots_not_copied.to_string().bright_red());
+    }
+    println!("{} {}", "Total screenshots copied:".magenta(), total_screenshots_copied.to_string().bright_green());
 
     await_exit_confirmation();
 }
@@ -75,9 +78,10 @@ fn get_instance_folders(multimc_folder: &str) -> Vec<PathBuf> {
 }
 
 /// Copies the screenshots from the /.minecraft/screenshots folder within the MultiMC instances to the output folder.
-/// Returns the total number of screenshots copied.
-fn copy_screenshots(instance_folders: Vec<PathBuf>, output_folder: &str) -> usize {
+/// Returns a tuple containing the total screenshots copied and the total screenshots not copied.
+fn copy_screenshots(instance_folders: Vec<PathBuf>, output_folder: &str) -> (usize, usize) {
     let mut total_screenshots_copied: usize = 0;
+    let mut total_screenshots_not_copied: usize = 0;
 
     for instance_folder in instance_folders {
         let screenshots_folder = instance_folder.join(".minecraft").join("screenshots");
@@ -92,13 +96,15 @@ fn copy_screenshots(instance_folders: Vec<PathBuf>, output_folder: &str) -> usiz
                         fs::copy(&path, &dest_path).unwrap();
                         println!("{} {}", "Copied:".magenta(), path.display().to_string().bright_cyan());
                         total_screenshots_copied += 1;
+                    } else {
+                        total_screenshots_not_copied += 1;
                     }
                 }
             }
         }
     }
     
-    total_screenshots_copied
+    (total_screenshots_copied, total_screenshots_not_copied)
 }
 
 /// Prompts the user to press Enter to exit the application.
