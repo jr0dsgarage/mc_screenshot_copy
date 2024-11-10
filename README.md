@@ -2,7 +2,7 @@
 
 This utility application copies all the screenshots from the instances folders within a MultiMC directory to an output folder.
 
-![image](https://github.com/user-attachments/assets/a4a011de-4199-4cb5-89eb-ec0d6a8f9310)
+![image](https://github.com/user-attachments/assets/6a68e2e7-f8b5-4f7f-9b6a-3b729cbf7791)
 
 I found myself doing this frequently after having multiple instances created, and wanted a program to do it for me.
 
