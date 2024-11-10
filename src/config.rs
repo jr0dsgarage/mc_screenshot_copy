@@ -44,8 +44,6 @@ impl Config {
             "Please enter the desired output folder path: ",
             |path: &str| Self::validate_output_folder(path),
         );
-
-        self.prompt_ready_to_copy();
     }
 
     /// Validates a folder path and prompts the user for valid input if necessary.
@@ -107,24 +105,6 @@ impl Config {
         let mut input = String::new();
         io::stdin().read_line(&mut input).expect("Failed to read line");
         input.trim().to_string()
-    }
-
-    /// Prompts the user if they are ready to copy screenshots.
-    fn prompt_ready_to_copy(&self) {
-        loop {
-            print!("\nCopy Screenshots from {} to {} (yes/no): ", self.multimc_folder.bright_cyan(), self.output_folder.bright_cyan());
-            io::stdout().flush().expect("Failed to flush stdout");
-            let mut input = String::new();
-            io::stdin().read_line(&mut input).expect("Failed to read line");
-            match input.trim().to_lowercase().as_str() {
-                "yes" | "y" => break,
-                "no" | "n" => {
-                    println!("Operation cancelled!");
-                    break;
-                }
-                _ => println!("Please enter 'yes' or 'no'."),
-            }
-        }
     }
     
 }
