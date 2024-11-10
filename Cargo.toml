@@ -5,7 +5,6 @@ version = "1.0.1"
 edition = "2021"
 description = "A simple tool to copy screenshots from across all MultiMC instances to a specified folder."
 repository = "https://github.com/jr0dsgarage/mc_screenshot_copy.git"
-license = "GNU GPLv3"
 license-file = "LICENSE"
 readme = "README.md"
 

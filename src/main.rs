@@ -1,75 +1,22 @@
-use std::{io::{self, Write, Read}, env, fs, path::{Path, PathBuf}};
+use std::{io::Read, env, fs, path::{Path, PathBuf}};
+use mc_screenshot_copy::config::Config;
 use colored::*;
 
-/// Struct to hold the configuration for the application.
-struct Config {
-    multimc_folder: String,
-    output_folder: String,
-}
-
-impl Config {
-    /// Creates a new Config instance from command-line arguments or prompts the user for input.
-    fn new(args: &[String]) -> Config {
-        if args.len() != 3 {
-            let exe_name = Path::new(&args[0]).file_name().unwrap().to_str().unwrap();
-            println!("Typical command prompt Usage: {} <MultiMC folder> <output folder>", exe_name);
-            println!("{}","No arguments provided, prompting for folders...".bright_red());
-            let multimc_folder = folder_prompt("Please enter the MultiMC folder: ");
-            let output_folder = folder_prompt("Please enter the output folder: ");
-            Config { multimc_folder, output_folder }
-        } else {
-            Config { multimc_folder: args[1].clone(), output_folder: args[2].clone() }
-        }
-    }
-
-    /// Validates the MultiMC folder path.
-    fn validate(&self) {
-        if !Path::new(&self.multimc_folder).exists() {
-            println!("{}","The MultiMC folder provided does not exist".bright_red());
-            std::process::exit(1);
-        }
-    }
-
-    /// Attempts to create the output folder.
-    fn create_output_folder(&self) {
-        if let Err(e) = fs::create_dir_all(&self.output_folder) {
-            println!("Failed to create output folder: {}", e.to_string().bright_red());
-        }
-    }
-
-    /// Sets up the configuration by validating the MultiMC folder and creating the output folder if necessary.
-    fn setup(&self) {
-        self.validate();
-        self.create_output_folder();
-    }
-    
-
-}
-
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    let config: Config = Config::new(&args);
     setup_terminal();
     print_title();
-    config.setup();
-
-    let instance_folders = match get_instance_folders(&config.multimc_folder) {
-        Ok(folders) => folders,
-        Err(_e) => {
-            println!("{}","The MultiMC folder provided is not valid, please use the folder that contains MultiMC.exe".bright_red());
-            std::process::exit(1);
-        }
-    };
-
-    let total_screenshots = copy_screenshots(instance_folders, &config.output_folder);
+    
+    let args: Vec<String> = env::args().collect();
+    let config: Config = Config::new(&args);
+    let instance_folders: Vec<PathBuf> = get_instance_folders(&config.multimc_folder);
+    let total_screenshots: usize = copy_screenshots(instance_folders, &config.output_folder);
 
     println!("{} {}", "Total screenshots copied:".magenta(), total_screenshots.to_string().bright_green());
 
-    println!("{}","\nPress Return to exit...".bright_green());
-    let _ = std::io::stdin().read(&mut [0u8]).unwrap();
+    await_exit_confirmation();
 }
 
-/// Sets up the terminal to enable colors
+/// Sets up the terminal to enable colors on Windows.
 fn setup_terminal() {
     if cfg!(target_os = "windows") {
         control::set_virtual_terminal(true).unwrap();
@@ -89,29 +36,24 @@ fn print_title() {
     println!("{}", "=".repeat(title.len()).cyan());
 }
 
-/// Prompts the user for a folder path.
-fn folder_prompt(prompt: &str) -> String {
-    print!("{}", prompt.bright_green());
-    io::stdout().flush().expect("Failed to flush stdout");
-    let mut input = String::new();
-    io::stdin().read_line(&mut input).expect("Failed to read line");
-    input.trim().to_string()
-}
-
 /// Gets the instance folders from the MultiMC folder.
-fn get_instance_folders(multimc_folder: &str) -> Result<Vec<PathBuf>, io::Error> {
-    let instance_folder = PathBuf::from(multimc_folder).join("instances");
-    let mut folders = Vec::new();
-    for entry in fs::read_dir(instance_folder)? {
-        let entry = entry?;
-        if entry.path().is_dir() {
-            folders.push(entry.path());
+fn get_instance_folders(multimc_folder: &str) -> Vec<PathBuf> {
+    let instance_folder: PathBuf = PathBuf::from(multimc_folder).join("instances");
+    let mut folders: Vec<PathBuf> = Vec::new();
+    if let Ok(entries) = fs::read_dir(instance_folder) {
+        for entry in entries {
+            if let Ok(entry) = entry {
+                if entry.path().is_dir() {
+                    folders.push(entry.path());
+                }
+            }
         }
     }
-    Ok(folders)
+    folders
 }
 
 /// Copies the screenshots from the /.minecraft/screenshots folder within the MultiMC instances to the output folder.
+/// Returns the total number of screenshots copied.
 fn copy_screenshots(instance_folders: Vec<PathBuf>, output_folder: &str) -> usize {
     let mut total_screenshots = 0;
 
@@ -133,6 +75,12 @@ fn copy_screenshots(instance_folders: Vec<PathBuf>, output_folder: &str) -> usiz
             }
         }
     }
-
+    
     total_screenshots
+}
+
+/// Prompts the user to press Enter to exit the application.
+fn await_exit_confirmation() {
+    println!("{}","\nPress Return to exit...".bright_green());
+    let _ = std::io::stdin().read(&mut [0u8]).unwrap();
 }
