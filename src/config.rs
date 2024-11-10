@@ -12,13 +12,15 @@ impl Config {
         let multimc_folder: String;
         let output_folder: String;
 
+        // If the user didn't provide enough arguments, do nothing and fill the variables with empty strings.
+        // The config.validate() function call will re-prompt the user for input.
         if args.len() != 3 {
             println!("Typical command prompt Usage: {} {}",
                 Path::new(&args[0]).file_name().unwrap().to_str().unwrap().bright_green(),
                 "<MultiMC folder path> <output folder path>".bright_green());
             println!("{}","Not enough arguments provided, prompting for folder paths...".bright_red());
-            multimc_folder = Self::folder_prompt("Please enter the MultiMC folder path: ");
-            output_folder = Self::folder_prompt("Please enter the desired output folder path: ");
+            multimc_folder = String::new();
+            output_folder = String::new();
         } else {
             multimc_folder = args[1].clone();
             output_folder = args[2].clone();
@@ -60,9 +62,7 @@ impl Config {
         } else {
             let instance_folder = Path::new(&self.multimc_folder).join("instances");
             if !instance_folder.exists() {
-                Err("The MultiMC folder does not contain an 'instances' folder".to_string())
-            } else if fs::read_dir(instance_folder).map_err(|e| e.to_string())?.next().is_none() {
-                Err("The 'instances' folder does not contain any instance folders".to_string())
+                Err("The MultiMC folder provided does not contain an 'instances' folder, and may not be valid".to_string())
             } else {
                 Ok(())
             }
@@ -93,5 +93,4 @@ impl Config {
         input.trim().to_string()
     }
     
-
 }
