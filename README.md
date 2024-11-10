@@ -15,7 +15,7 @@ I found myself doing this frequently after having multiple instances created, an
 2. In terminal, browse to the location of the executable you downloaded
 3. Execute the program, using your MultiMC folder location and the output folder location you desire:
 ```sh
-.\mc_screenshot_copy.exe <MultiMC folder> <output folder>
+.\mc_screenshot_copy.exe <MultiMC folder path> <output folder path>
 ```
 ## Usage notes
 - The MultiMC folder is the folder that holds MultiMC.exe (and the instances subdirectory)
