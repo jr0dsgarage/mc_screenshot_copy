@@ -77,6 +77,7 @@ impl Config {
             if let Err(e) = fs::create_dir_all(&self.output_folder) {
                 Err(format!("Failed to create output folder: {}", e.to_string()))
             } else {
+                println!("Created output folder: {}", self.output_folder.bright_green());
                 Ok(())
             }
         } else {
