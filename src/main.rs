@@ -1,4 +1,4 @@
-use std::{io::Read, env, fs, path::{Path, PathBuf}};
+use std::{io::{self, Read, Write}, env, fs, path::{Path, PathBuf}};
 use mc_screenshot_copy::config::Config;
 use colored::*;
 
@@ -8,10 +8,17 @@ fn main() {
     
     let args: Vec<String> = env::args().collect();
     let config: Config = Config::new(&args);
-    let instance_folders: Vec<PathBuf> = get_instance_folders(&config.multimc_folder);
-    let total_screenshots: usize = copy_screenshots(instance_folders, &config.output_folder);
 
-    println!("{} {}", "Total screenshots copied:".magenta(), total_screenshots.to_string().bright_green());
+    prompt_ready_to_copy(&config);
+
+    let instance_folders: Vec<PathBuf> = get_instance_folders(&config.multimc_folder);
+
+    let (total_screenshots_copied, total_screenshots_not_copied) = copy_screenshots(instance_folders, &config.output_folder);
+
+    if total_screenshots_not_copied > 0 {
+        println!("{} {}", "Total screenshots not copied because they already exist in output folder:".magenta(), total_screenshots_not_copied.to_string().bright_red());
+    }
+    println!("{} {}", "Total screenshots copied:".magenta(), total_screenshots_copied.to_string().bright_green());
 
     await_exit_confirmation();
 }
@@ -23,9 +30,9 @@ fn setup_terminal() {
     }
 }
 
-/// Prints the title of the application.
+/// Prints the title and version of the application.
 fn print_title() {
-    let title = format!(
+    let title: String = format!(
         "{} {} {} {}", 
         "MultiMC Screenshot Copier".cyan(),
         env!("CARGO_PKG_VERSION").green(),
@@ -34,6 +41,24 @@ fn print_title() {
     );
     println!("{}", title);
     println!("{}", "=".repeat(title.len()).cyan());
+}
+
+/// Prompts the user if they are ready to copy screenshots.
+fn prompt_ready_to_copy(config: &Config) {
+    loop {
+        print!("\nCopy Screenshots from {} to {} (yes/no): ", config.multimc_folder.bright_cyan(), config.output_folder.bright_cyan());
+        io::stdout().flush().expect("Failed to flush stdout");
+        let mut input: String = String::new();
+        io::stdin().read_line(&mut input).expect("Failed to read line");
+        match input.trim().to_lowercase().as_str() {
+            "yes" | "y" => break,
+            "no" | "n" => {
+                println!("Operation cancelled!");
+                break;
+            }
+            _ => println!("Please enter 'yes' or 'no'."),
+        }
+    }
 }
 
 /// Gets the instance folders from the MultiMC folder.
@@ -53,30 +78,33 @@ fn get_instance_folders(multimc_folder: &str) -> Vec<PathBuf> {
 }
 
 /// Copies the screenshots from the /.minecraft/screenshots folder within the MultiMC instances to the output folder.
-/// Returns the total number of screenshots copied.
-fn copy_screenshots(instance_folders: Vec<PathBuf>, output_folder: &str) -> usize {
-    let mut total_screenshots = 0;
+/// Returns a tuple containing the total screenshots copied and the total screenshots not copied.
+fn copy_screenshots(instance_folders: Vec<PathBuf>, output_folder: &str) -> (usize, usize) {
+    let mut total_screenshots_copied: usize = 0;
+    let mut total_screenshots_not_copied: usize = 0;
 
     for instance_folder in instance_folders {
         let screenshots_folder = instance_folder.join(".minecraft").join("screenshots");
         if screenshots_folder.exists() {
             for entry in fs::read_dir(screenshots_folder).unwrap() {
-                let entry = entry.unwrap();
-                let path = entry.path();
+                let entry: fs::DirEntry = entry.unwrap();
+                let path: PathBuf = entry.path();
                 if path.is_file() {
-                    let file_name = path.file_name().unwrap();
-                    let dest_path = Path::new(output_folder).join(file_name);
+                    let file_name: &std::ffi::OsStr = path.file_name().unwrap();
+                    let dest_path: PathBuf = Path::new(output_folder).join(file_name);
                     if !dest_path.exists() {
                         fs::copy(&path, &dest_path).unwrap();
                         println!("{} {}", "Copied:".magenta(), path.display().to_string().bright_cyan());
-                        total_screenshots += 1;
+                        total_screenshots_copied += 1;
+                    } else {
+                        total_screenshots_not_copied += 1;
                     }
                 }
             }
         }
     }
     
-    total_screenshots
+    (total_screenshots_copied, total_screenshots_not_copied)
 }
 
 /// Prompts the user to press Enter to exit the application.
