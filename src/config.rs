@@ -28,30 +28,29 @@ impl Config {
         config.validate()
     }
 
-        /// Validates the configuration and re-prompts the user for valid inputs if necessary.
-        fn validate(mut self) -> Config {
-            loop {
-                if let Err(e) = self.validate_multimc_folder() {
-                    println!("Error: {}", e.bright_red());
-                    self.multimc_folder = Self::folder_prompt("Please enter a valid MultiMC folder path: ");
-                    continue;
-                }
-                break;
+    /// Validates the configuration and re-prompts the user for valid inputs if necessary.
+    fn validate(mut self) -> Config {
+        loop {
+            if let Err(e) = self.validate_multimc_folder() {
+                println!("Error: {}", e.bright_red());
+                self.multimc_folder = Self::folder_prompt("Please enter a valid MultiMC folder path: ");
+                continue;
             }
-    
-            loop {
-                if let Err(e) = self.validate_output_folder() {
-                    println!("Error: {}", e.bright_red());
-                    self.output_folder = Self::folder_prompt("Please enter a valid output folder path: ");
-                    continue;
-                }
-                break;
-            }
-    
-            self
+            break;
         }
-    
 
+        loop {
+            if let Err(e) = self.validate_output_folder() {
+                println!("Error: {}", e.bright_red());
+                self.output_folder = Self::folder_prompt("Please enter a valid output folder path: ");
+                continue;
+            }
+            break;
+        }
+
+        self
+    }
+    
     /// Validates the MultiMC folder path.
     fn validate_multimc_folder(&self) -> Result<(), String> {
         if self.multimc_folder.is_empty() {
